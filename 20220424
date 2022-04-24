@@ -1,0 +1,27 @@
+#红宝书P209-238  
+##  8 对象、类与面向对象编程  
+### 8.1 对象  
+1. Mixin  
+   1. `Object.assign()`非原子性，中途出错不会撤销前面的赋值  
+   2. 在赋值的时候是调用原元素/目标元素的`get`/`set`方法，因此不是转移`get`/`set`方法本身  
+   3. 执行的是浅拷贝，意味着转移的是对于对象的引用  
+2. 使用`Object.is()`避免`===`中对于正负0（`+0 is 0，-0 isnot 0`），以及`NaN`的判断(以前需要使用`isNaN()`判断`NaN`)  
+3. 解构  
+   1. 解构调用内部的`ToObject()`将元素转为对象,例如字面字符串等  
+   2. 解构中间出错也不会撤回前面的赋值  
+4. 构造函数与原型  
+   1. 构造函数(`new`)不一定要声明,赋值也可以
+   2. 三种调用构造函数方式的影响  
+      1. 构造函数(`new`):返回新对象  
+      2. 作为函数调用(`func()`):将`this`作为`window`,也就是设置全局属性  
+      3. 使用`call`/`apply`/`bind`调用:将属性设置在目标对象上  
+   3. **为什么共有函数最好放在prototype上**
+   >如果要对每个属性值为对象的(`this.onclick=()=>{}`)对象进行创建,在`new`的步骤里会创建新的函数,因此会出现`a.onclick!=b.onclick`的情况,出现浪费资源的情况.但是如果将其放到全局作用域,虽然只有一个函数,但是就脱离了对象作用域,造成混乱,因此就要给构造函数创建一个prototype属性用于保存共有属性.**缺点**:对于数组,就不想要共享了,否则在实例a上的修改会牵连实例b
+   1. 用`Object.create()`的性能比用`Object.setprototypeOf()`更好,因为修改继承关系会影响链条上一系列的对象.
+   2. 用`property in Object`判断属性能否访问的到,用`hasOwnProperty`判断属性是否自身的,竟然还有个`hasPrototypeProperty()`来判断属性是否是原型上的.
+   3. 在属性的枚举中,`for-in`循环和`Object.keys()`顺序不确定,取决于引擎实现,`getOwn\[PropertyNames|Symbols\]()`顺序确定:先升序枚举数值键,再按插入顺序枚举字符串键,再按插入顺序枚举Symbol键.
+   4. 如果使用设置`ConstructFunc.prototype={prop1:val1,...}`的方式来原型,最好紧接着一个`Object.defineProperty(ConstructFunc.prototype,'constructor',{value:ConstructFunc[,writable:true],enumerable:false[,configurable:true]})`,目的是可以用实例的constructor属性来判断构造函数,并且不会被枚举出来.
+   5. 由于实例保存的是对于`prototype`的引用,因此如果是使用7的方法把原型换成新的对象,之前的实例不会被更新.
+   6. 为什么通常使用原生引用类型的构造函数的原型来使用对象方法(`Array.prototype.sort`)
+   >因为实例的属性容易被修改
+5. `Object.values/entries`枚举时是浅复制,并且忽略`Symbol`键
